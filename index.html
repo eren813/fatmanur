@@ -1,60 +1,68 @@
 <!DOCTYPE html><html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Fatma Nur'um😍</title>
+  <title>Fatma Nur'um😍❤️</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }html, body {
-  width: 100%;
-  height: 100%;
-  background-color: black;
-  overflow: hidden;
-  font-family: 'Arial Black', sans-serif;
-}
-
-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-}
-
-#fatma {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 60px;
-  color: white;
-  text-shadow: 0 0 15px red, 0 0 30px red;
-  opacity: 0;
-  z-index: 2;
-  animation: fadeIn 2s ease-in-out forwards;
-  animation-delay: 6s;
-}
-
-audio {
-  display: none;
-}
-
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
-}
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      background-color: black;
+      overflow: hidden;
+      font-family: 'Arial Black', sans-serif;
+    }
+    canvas {
+      position: absolute;
+      top: 0; left: 0;
+      z-index: 1;
+    }
+    #fatma {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 60px;
+      color: white;
+      text-shadow: 0 0 15px red, 0 0 30px red;
+      opacity: 0;
+      z-index: 2;
+      animation: fadeIn 2s ease-in-out forwards;
+      animation-delay: 6s;
+    }
+    @keyframes fadeIn { to { opacity: 1; } }
+    #startScreen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    #startBtn {
+      padding: 20px 40px;
+      font-size: 24px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 0 10px red, 0 0 20px red;
+    }
+    audio { display: none; }
   </style>
 </head>
 <body>
+  <div id="startScreen">
+    <button id="startBtn">Başlat</button>
+  </div>
   <canvas id="canvas"></canvas>
   <div id="fatma">Fatma Nur</div>
   <audio id="audio" src="askin.mp3" preload="auto"></audio>  <script>
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
     const audio = document.getElementById("audio");
+    const startBtn = document.getElementById("startBtn");
+    const startScreen = document.getElementById("startScreen");
 
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
@@ -80,10 +88,8 @@ audio {
         y: p1.y + Math.sin(angle) * length
       };
       lines.push({
-        x1: p1.x,
-        y1: p1.y,
-        x2: p2.x,
-        y2: p2.y,
+        x1: p1.x, y1: p1.y,
+        x2: p2.x, y2: p2.y,
         vx: (Math.random() - 0.5) * 12,
         vy: (Math.random() - 0.5) * 12,
         opacity: 1
@@ -93,6 +99,7 @@ audio {
     let exploded = false;
     let explosionStart = null;
     let soundPlayed = false;
+    let started = false;
 
     function animate() {
       ctx.clearRect(0, 0, width, height);
@@ -106,12 +113,7 @@ audio {
         ctx.stroke();
       });
 
-      if (!exploded) {
-        setTimeout(() => {
-          exploded = true;
-          explosionStart = performance.now();
-        }, 5000); // 5 saniye sonra patlama
-      } else if (explosionStart) {
+      if (exploded && explosionStart) {
         const elapsed = performance.now() - explosionStart;
         lines.forEach(line => {
           line.x1 += line.vx;
@@ -130,7 +132,15 @@ audio {
       requestAnimationFrame(animate);
     }
 
-    animate();
+    startBtn.addEventListener("click", () => {
+      startScreen.style.display = "none";
+      started = true;
+      animate();
+      setTimeout(() => {
+        exploded = true;
+        explosionStart = performance.now();
+      }, 5000);
+    });
 
     window.addEventListener("resize", () => {
       width = canvas.width = window.innerWidth;
