@@ -1,0 +1,140 @@
+<!DOCTYPE html><html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Fatma Nur</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }html, body {
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  overflow: hidden;
+  font-family: 'Arial Black', sans-serif;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+#fatma {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 60px;
+  color: white;
+  text-shadow: 0 0 15px red, 0 0 30px red;
+  opacity: 0;
+  z-index: 2;
+  animation: fadeIn 2s ease-in-out forwards;
+  animation-delay: 6s;
+}
+
+audio {
+  display: none;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div id="fatma">Fatma Nur</div>
+  <audio id="audio" src="askin.mp3" preload="auto"></audio>  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const audio = document.getElementById("audio");
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    const lines = [];
+    const heartPoints = [];
+
+    for (let t = 0; t < Math.PI * 2; t += 0.01) {
+      const x = 16 * Math.pow(Math.sin(t), 3);
+      const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+      heartPoints.push({
+        x: width / 2 + x * 15,
+        y: height / 2 - y * 15
+      });
+    }
+
+    for (let i = 0; i < 2000; i++) {
+      const p1 = heartPoints[Math.floor(Math.random() * heartPoints.length)];
+      const angle = Math.random() * Math.PI * 2;
+      const length = Math.random() * 8 + 4;
+      const p2 = {
+        x: p1.x + Math.cos(angle) * length,
+        y: p1.y + Math.sin(angle) * length
+      };
+      lines.push({
+        x1: p1.x,
+        y1: p1.y,
+        x2: p2.x,
+        y2: p2.y,
+        vx: (Math.random() - 0.5) * 12,
+        vy: (Math.random() - 0.5) * 12,
+        opacity: 1
+      });
+    }
+
+    let exploded = false;
+    let explosionStart = null;
+    let soundPlayed = false;
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      ctx.globalCompositeOperation = 'lighter';
+
+      lines.forEach(line => {
+        ctx.beginPath();
+        ctx.moveTo(line.x1, line.y1);
+        ctx.lineTo(line.x2, line.y2);
+        ctx.strokeStyle = `rgba(255, 0, 0, ${line.opacity})`;
+        ctx.stroke();
+      });
+
+      if (!exploded) {
+        setTimeout(() => {
+          exploded = true;
+          explosionStart = performance.now();
+        }, 5000); // 5 saniye sonra patlama
+      } else if (explosionStart) {
+        const elapsed = performance.now() - explosionStart;
+        lines.forEach(line => {
+          line.x1 += line.vx;
+          line.y1 += line.vy;
+          line.x2 += line.vx;
+          line.y2 += line.vy;
+          line.opacity -= 0.015;
+        });
+
+        if (elapsed > 1000 && !soundPlayed) {
+          audio.play();
+          soundPlayed = true;
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener("resize", () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+  </script></body>
+</html>
